@@ -1,52 +1,66 @@
-var title=document.getElementById("titleInput");
-var text=document.getElementById("textArea");
-var btn=document.getElementById("btn");
-var ulEle=document.getElementById("notesUl");
-var textNote=document.getElementById("showNote");
+var titleInput = document.getElementById('titleInput');
+var textArea = document.getElementById('textArea');
+var notesUl = document.getElementById('notesUl');
+var noteDiv = document.getElementById('showNote');
+var btn = document.getElementById('btn');
 
 update();
 
-function getUpdate(){
-    if(localStorage.getItem("notes")==null){
-        var l=[[title.value, text.value]];
-        localStorage.setItem("notes",JSON.stringify(l));
-    }
-    else{
-        var li=JSON.parse(localStorage.getItem("notes"));
-        li.push([title.value,text.value]);
-        localStorage.setItem("notes",JSON.stringify(li));
-    }
-    title.value="";
-    text.value="";
-    update();
-}
-
-function update(){
-    if(localStorage.getItem("notes")!=null){
-        var temp= JSON.parse(localStorage.getItem("notes"));
-        var str="";
-        for(let i=0;i<temp.length;i++){
-            str+=`<li>${i+1}. ${temp[i][0]} <button onclick="show(${i})" class="titleBtn">Show</button><button onclick="deleted(${i})" class="titleBtn">Delete</button></li>`;
+function update() {
+    if (localStorage.getItem("pending") != null) {
+        let str = "";
+        let l = JSON.parse(localStorage.getItem("pending"));
+        for (let i = 0; i < l.length; i++) {
+            str += `<li>${l[i][0]} <button class="titleBtn" onclick="show(${i})">Show</button> <button class="titleBtn" onclick="deleted(${i})">Delete</button></li>`;
         }
-        ulEle.innerHTML=str;
+        notesUl.innerHTML = str;
     }
 }
 
-function deleted(index){
-    var items= JSON.parse(localStorage.getItem("notes"));
-    if(textNote.innerHTML==items[index][1]){
-        textNote.innerHTML="";
+function show(i) {
+    noteDiv.innerHTML = "";
+    let l = JSON.parse(localStorage.getItem("pending"));
+    noteDiv.innerHTML = l[i][1];
+}
+
+function deleted(ind) {
+    let l = JSON.parse(localStorage.getItem("pending"));
+    if(noteDiv.innerHTML==l[ind][1]){
+        noteDiv.innerHTML="";
     }
-    items.splice(index,1);
-    localStorage.setItem("notes",JSON.stringify(items));
+    l.splice(ind, 1);
+    localStorage.setItem("pending", JSON.stringify(l));
     update();
 }
 
-function show(ind){
-    TextEncoder.innerHTML="";
-    var itm= JSON.parse(localStorage.getItem("notes"));
-    textNote.innerHTML=itm[ind][1];
-    localStorage.setItem("notes",JSON.stringify(itm));
-}
-
-btn.addEventListener("click",getUpdate);
+btn.addEventListener('click', () => {
+    if (titleInput.value == "" && textArea.value == "") {
+        titleInput.style.border = "3px red ridge";
+        textArea.style.border = "3px red ridge";
+    }
+    else if (titleInput.value == "") {
+        textArea.style.border = "3px ridge rgb(82,1,82)";
+        titleInput.style.border = "3px red ridge";
+    }
+    else if (textArea.value == "") {
+        titleInput.style.border = "3px ridge rgb(82,1,82)";
+        textArea.style.border = "3px red ridge";
+    }
+    else if (localStorage.getItem("pending") == null) {
+        localStorage.setItem("pending", JSON.stringify([[titleInput.value, textArea.value]]));
+        titleInput.style.border = "3px ridge rgb(82,1,82)";
+        textArea.style.border = "3px ridge rgb(82,1,82)";
+        titleInput.value = "";
+        textArea.value = "";
+    }
+    else {
+        let l = JSON.parse(localStorage.getItem("pending"));
+        l.push([titleInput.value, textArea.value]);
+        localStorage.setItem("pending", JSON.stringify(l));
+        titleInput.style.border = "3px ridge rgb(82,1,82)";
+        textArea.style.border = "3px ridge rgb(82,1,82)";
+        titleInput.value = "";
+        textArea.value = "";
+    }
+    update();
+})
